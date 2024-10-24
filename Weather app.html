@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Nadu Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-image: url('https://npr.brightspotcdn.com/dims3/default/strip/false/crop/2000x1332+0+0/resize/1100/quality/85/format/webp/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2F81%2F92%2Fcd9f968749878b371043ed3acb18%2Fap24032704255688.jpg');
+            background-size: cover; /* Ensures the image covers the entire background */
+            background-position: center; /* Centers the image */
+            transition: background 0.5s ease;
+        }
+
+        .container {
+            margin: 50px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            z-index: 1;
+            position: relative;
+        }
+
+        select, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        #weatherResult {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        @keyframes sun {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes rain {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .sunny {
+            background: url('https://i.imgur.com/uZgr5mZ.png') center/cover no-repeat;
+            animation: sun 20s linear infinite;
+        }
+
+        .rainy {
+            background: url('https://i.imgur.com/azZx9ts.png') center/cover no-repeat;
+            background-size: 100%;
+            animation: rain 10s linear infinite;
+        }
+
+        .cloudy {
+            background: url('https://i.imgur.com/jHF7WgD.png') center/cover no-repeat;
+        }
+
+        .clear {
+            background-color: #87CEFA;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tamil Nadu Weather</h1>
+        <select id="city">
+            <option value="">Select a city</option>
+            <option value="Ooty">Ooty</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Coimbatore">Coimbatore</option>
+            <option value="Madurai">Madurai</option>
+            <option value="Tiruchirappalli">Tiruchirappalli</option>
+            <option value="Salem">Salem</option>
+            <option value="Tirunelveli">Tirunelveli</option>
+            <option value="Erode">Erode</option>
+            <option value="Tiruppur">Tiruppur</option>
+            <option value="Vellore">Vellore</option>
+            <option value="Thoothukudi">Thoothukudi</option>
+        </select>
+        <button id="getWeather">Get Weather</button>
+        <div id="weatherResult"></div>
+    </div>
+
+    <script>
+        document.getElementById('getWeather').addEventListener('click', function() {
+            const city = document.getElementById('city').value;
+            if (city === '') {
+                document.getElementById('weatherResult').innerText = 'Please select a city!';
+                return;
+            }
+
+            const apiKey = 'a81993eb3edb584a5fd84ad7c240eb25'; // Your API key
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},IN&appid=${apiKey}&units=metric`;
+
+            console.log("Fetching weather data for:", city); // Log city for debugging
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('City not found!'); // Handle invalid response
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data); // Log API response data
+                    const weather = `Temperature: ${data.main.temp}°C, Weather: ${data.weather[0].description}`;
+                    document.getElementById('weatherResult').innerText = weather;
+
+                    // Change background based on weather condition
+                    const weatherCondition = data.weather[0].main.toLowerCase();
+                    if (weatherCondition.includes('rain')) {
+                        document.body.className = 'rainy';
+                    } else if (weatherCondition.includes('cloud')) {
+                        document.body.className = 'cloudy';
+                    } else if (weatherCondition.includes('clear')) {
+                        document.body.className = 'clear';
+                    } else if (weatherCondition.includes('sunny')) {
+                        document.body.className = 'sunny';
+                    } else {
+                        document.body.className = 'clear';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error); // Log the error
+                    document.getElementById('weatherResult').innerText = error.message;
+                    document.body.className = ''; // Reset background
+                });
+        });
+    </script>
+</body>
+</html>
